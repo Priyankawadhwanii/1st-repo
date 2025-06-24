@@ -1,17 +1,23 @@
-import streamlit as st
-from pyngrok import ngrok
+from flask import Flask, redirect, url_for, request, render_template
 
-# Streamlit App
-st.title('Hello Pri!')
-st.write('This is your first Streamlit Web App!')
+app = Flask(__name__)
 
-name = st.text_input('Enter your name:')
-if st.button('Say Hello'):
-    st.write(f'Hello {name}!')
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-# Ngrok Auth
-ngrok.set_auth_token("YOUR_NGROK_AUTH_TOKEN")  # Yahan apna token dalna
+@app.route('/success/<name>')
+def success(name):
+    return f'Welcome {name}!'
 
-# Start ngrok tunnel
-public_url = ngrok.connect(8501)
-print('Your Web App is Live at:', public_url)
+@app.route('/login', methods=['POST', 'GET'])
+def login():
+    if request.method == 'POST':
+        user = request.form['nm']
+        return redirect(url_for('success', name=user))
+    else:
+        user = request.args.get('nm')
+        return redirect(url_for('success', name=user))
+
+if __name__ == '__main__':
+    app.run(debug=True)
